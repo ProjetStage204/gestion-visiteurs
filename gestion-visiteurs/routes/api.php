@@ -19,10 +19,8 @@ Route::prefix('auth')->group(function () {
             'role' => 'in:admin,agent', // Only allow valid roles
         ]);
 
-        // Default role is 'agent' if none is provided
         $role = $request->role ?? 'agent';
 
-        // Create user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -72,39 +70,8 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-// 📌 Admin Routes (Restricted)
-Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
-    // Admin Dashboard
-    Route::get('/dashboard', function () {
-        return response()->json(['message' => 'Bienvenue dans le tableau de bord admin']);
-    });
-
-    // Liste des utilisateurs (admin only)
-    Route::get('/users', function () {
-        return response()->json(User::all());
-    });
-
-    // Supprimer un utilisateur (admin only)
-    Route::delete('/users/{id}', function ($id, Request $request) {
-        $user = User::find($id);
-
-        if (!$user) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
-        }
-
-        // Prevent deleting the current admin user
-        if ($user->id === $request->user()->id) {
-            return response()->json(['message' => 'Vous ne pouvez pas supprimer votre propre compte'], 403);
-        }
-
-        $user->delete();
-        return response()->json(['message' => 'Utilisateur supprimé avec succès']);
-    });
-});
-
 // 📌 Visitor Management (CRUD) Routes
 Route::middleware('auth:sanctum')->group(function () {
-    // ✅ Create a visitor
     Route::post('/visitors', function (Request $request) {
         $request->validate([
             'name' => 'required|string',
@@ -124,12 +91,10 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['message' => 'Visiteur ajouté avec succès', 'visitor' => $visitor], 201);
     });
 
-    // ✅ Get all visitors (Admin only)
-    Route::middleware('admin')->get('/visitors', function () {
+    Route::get('/visitors', function () {
         return response()->json(Visitor::all());
     });
 
-    // ✅ Get a single visitor
     Route::get('/visitors/{id}', function ($id) {
         $visitor = Visitor::find($id);
         if (!$visitor) {
@@ -138,7 +103,6 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json($visitor);
     });
 
-    // ✅ Update a visitor
     Route::put('/visitors/{id}', function (Request $request, $id) {
         $visitor = Visitor::find($id);
         if (!$visitor) {
@@ -155,24 +119,10 @@ Route::middleware('auth:sanctum')->group(function () {
         $visitor->update($request->only(['name', 'cin', 'phone', 'reason']));
         return response()->json(['message' => 'Visiteur mis à jour avec succès', 'visitor' => $visitor]);
     });
-
-    // ✅ Delete a visitor (Admin only)
-    Route::middleware('admin')->delete('/visitors/{id}', function ($id) {
-        $visitor = Visitor::find($id);
-        if (!$visitor) {
-            return response()->json(['message' => 'Visiteur non trouvé'], 404);
-        }
-        $visitor->delete();
-        return response()->json(['message' => 'Visiteur supprimé avec succès']);
-    });
 });
 
-// 📌 Public Routes (Accessible without auth)
-Route::get('/public-info', function () {
-    return response()->json(['message' => 'Informations accessibles publiquement']);
-});
-
-Route::middleware(['auth:sanctum', 'admin'])->get('/admin/visitor-stats', function () {
+// 📌 Visitor Stats (Accessible to both Admins and Agents)
+Route::middleware(['auth:sanctum'])->get('/visitor-stats', function () {
     return response()->json([
         'total_visitors' => \App\Models\Visitor::count(),
         'visits_today' => \App\Models\Visitor::whereDate('created_at', now())->count(),
@@ -183,23 +133,11 @@ Route::middleware(['auth:sanctum', 'admin'])->get('/admin/visitor-stats', functi
             ->limit(5)
             ->get(),
         'visits_per_agent' => \App\Models\User::where('role', 'agent')
-            ->withCount('visitors') // ✅ Now this will work
+            ->withCount('visitors')
             ->get(['name', 'visitors_count']),
-    ]);
-});
-
-
-
-Route::middleware(['auth:sanctum', 'admin'])->get('/admin/export-visitors', function () {
-    $visitors = \App\Models\Visitor::all();
-
-    $csv = "Name,CIN,Phone,Reason,Date Created\n";
-    foreach ($visitors as $visitor) {
-        $csv .= "{$visitor->name},{$visitor->cin},{$visitor->phone},{$visitor->reason},{$visitor->created_at}\n";
-    }
-
-    return response($csv, 200, [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="visitors.csv"',
+        'visits_per_month' => \App\Models\Visitor::selectRaw('MONTHNAME(created_at) as month, COUNT(*) as visits')
+            ->groupBy('month')
+            ->orderByRaw('MONTH(created_at)')
+            ->get()
     ]);
 });
