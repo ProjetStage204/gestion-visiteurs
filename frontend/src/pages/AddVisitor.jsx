@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -14,25 +15,20 @@ const AddVisitor = () => {
     e.preventDefault();
     const token = localStorage.getItem("token");
     
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/visitors", // ✅ Correction de l'URL
-        { name, cin, phone, reason },
-        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
-      );
-      setMessage("Visiteur ajouté avec succès !");
-      setName("");
-      setCin("");
-      setPhone("");
-      setReason("");
+      await axios.post("http://127.0.0.1:8000/api/visitors", {
+        name,
+        cin,
+        phone,
+        reason,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      toast.success("Visiteur ajouté avec succès !");
+      navigate("/dashboard"); // ✅ Redirection vers le dashboard après succès
     } catch (error) {
-      console.error("Erreur lors de l'ajout du visiteur", error.response ? error.response.data : error);
-      setMessage("Erreur lors de l'ajout du visiteur.");
+      toast.error("Erreur lors de l'ajout du visiteur.");
     }
   };
 

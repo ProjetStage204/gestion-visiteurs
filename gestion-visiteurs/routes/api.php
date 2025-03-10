@@ -156,3 +156,18 @@ Route::middleware(['auth:sanctum', 'admin'])->delete('/visitors/{id}', function 
     return response()->json(['message' => 'Visiteur supprimé avec succès']);
 });
 
+Route::middleware(['auth:sanctum'])->put('/visitors/{id}/status', function (Request $request, $id) {
+    $visitor = Visitor::find($id);
+    if (!$visitor) {
+        return response()->json(['message' => 'Visiteur non trouvé'], 404);
+    }
+
+    $request->validate([
+        'status' => 'required|string|in:En attente,Entré,Sorti',
+    ]);
+
+    $visitor->status = $request->status;
+    $visitor->save();
+
+    return response()->json(['message' => 'Statut mis à jour avec succès', 'visitor' => $visitor]);
+});

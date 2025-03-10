@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const EditVisitor = () => {
   const { id } = useParams();
   const [visitor, setVisitor] = useState({ name: "", cin: "", phone: "", reason: "" });
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,7 +19,10 @@ const EditVisitor = () => {
       headers: { Authorization: `Bearer ${token}` },
     })
     .then((response) => setVisitor(response.data))
-    .catch((error) => console.error("Erreur chargement du visiteur", error));
+    .catch((error) => {
+      console.error("Erreur chargement du visiteur", error);
+      toast.error("Impossible de charger les données du visiteur.");
+    });
   }, [id, navigate]);
 
   const handleUpdate = async (e) => {
@@ -30,11 +33,12 @@ const EditVisitor = () => {
       await axios.put(`http://127.0.0.1:8000/api/visitors/${id}`, visitor, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
-      setMessage("Visiteur mis à jour avec succès !");
+      
+      toast.success("Visiteur mis à jour avec succès !");
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error) {
       console.error("Erreur mise à jour visiteur", error);
-      setMessage("Erreur lors de la mise à jour du visiteur.");
+      toast.error("Erreur lors de la mise à jour du visiteur.");
     }
   };
 
@@ -42,7 +46,6 @@ const EditVisitor = () => {
     <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center text-blue-900 mb-6">Modifier le Visiteur</h2>
-        {message && <p className="text-center text-green-500">{message}</p>}
         <form onSubmit={handleUpdate} className="space-y-4">
           <input
             type="text"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 import logoH from "../photos/logoH.png";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -37,37 +38,84 @@ const Dashboard = () => {
     .catch((error) => console.error("Erreur chargement des visiteurs", error));
   }, [navigate]);
 
+  const fetchStats = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/visitor-stats", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      console.log("Nouvelles statistiques après suppression :", response.data); // ✅ Vérifier si les stats changent
+      setStats(response.data);
+    } catch (error) {
+      console.error("Erreur chargement des stats", error);
+    }
+  };
+  
+  const handleStatusChange = async (id, newStatus) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.put(`http://127.0.0.1:8000/api/visitors/${id}/status`, 
+        { status: newStatus }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+  
+      setVisitors(visitors.map(v => v.id === id ? { ...v, status: newStatus } : v));
+  
+      // ✅ Afficher une notification de succès
+      toast.success(`Statut mis à jour : ${newStatus}`);
+  
+    } catch (error) {
+      console.error("Erreur mise à jour du statut", error);
+      // ❌ Afficher une notification d'erreur
+      toast.error("Erreur lors de la mise à jour du statut.");
+    }
+  };
+  
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     navigate("/login");
   };
 
-  const handleDelete = async (id) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
   
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce visiteur ?")) {
-      return;
-    }
-  
-    try {
-      await axios.delete(`http://127.0.0.1:8000/api/visitors/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-  
-      // ✅ Met à jour la liste des visiteurs après suppression
-      setVisitors(visitors.filter(visitor => visitor.id !== id));
-    } catch (error) {
-      console.error("Erreur lors de la suppression", error);
-    }
-  };
+
+const handleDelete = async (id) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce visiteur ?")) {
+    return;
+  }
+
+  try {
+    await axios.delete(`http://127.0.0.1:8000/api/visitors/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    // ✅ Met à jour la liste des visiteurs après suppression
+    setVisitors(prevVisitors => prevVisitors.filter(visitor => visitor.id !== id));
+
+    // ✅ Rafraîchir immédiatement les statistiques après suppression
+    await fetchStats();
+
+    // ✅ Afficher une notification de succès
+    toast.success("Visiteur supprimé avec succès !");
+
+  } catch (error) {
+    console.error("Erreur lors de la suppression", error);
+    // ❌ Afficher une notification d'erreur
+    toast.error("Erreur lors de la suppression du visiteur.");
+  }
+};
+
   
 
   const filteredVisitors = visitors.filter(visitor =>
@@ -142,6 +190,7 @@ const Dashboard = () => {
               <th className="border p-2">Téléphone</th>
               <th className="border p-2">Raison</th>
               {userRole === "admin" && <th className="border p-2">Actions</th>}
+              {userRole === "agent" && <th className="border p-2">status</th>}
             </tr>
           </thead>
           <tbody>
@@ -153,11 +202,43 @@ const Dashboard = () => {
                   <td className="border p-2">{visitor.phone}</td>
                   <td className="border p-2">{visitor.reason}</td>
                   {userRole === "admin" && (
-                    <td className="border p-2 flex justify-center space-x-2">
+                    <td className="border p-2 space-x-2">
                       <button onClick={() => navigate(`/edit-visitor/${visitor.id}`)} className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-400 transition">Modifier</button>
                       <button onClick={() => handleDelete(visitor.id)} className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-500 transition">Supprimer</button>
                     </td>
                   )}
+                  {/* Agent peut modifier le statut */}
+                  {userRole === "agent" && (
+  <td className="border p-2 ">
+    {visitor.status === "En attente" && (
+      <>
+        <button onClick={() => handleStatusChange(visitor.id, "Entré")} 
+          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-400 transition">
+          Entré
+        </button>
+        <button onClick={() => handleStatusChange(visitor.id, "Sorti")} 
+          className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-400 transition ml-2">
+          Sorti
+        </button>
+      </>
+    )}
+
+    {visitor.status === "Entré" && (
+      <button onClick={() => handleStatusChange(visitor.id, "Sorti")} 
+        className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-400 transition">
+        Sorti
+      </button>
+    )}
+
+    {visitor.status === "Sorti" && (
+      <button onClick={() => handleStatusChange(visitor.id, "Entré")} 
+        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-400 transition">
+        Entré
+      </button>
+    )}
+  </td>
+)}
+
                 </tr>
               ))
             ) : (

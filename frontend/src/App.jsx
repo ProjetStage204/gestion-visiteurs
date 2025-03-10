@@ -4,10 +4,14 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AddVisitor from "./pages/AddVisitor";
 import EditVisitor from "./pages/EditVisitor";
-import ProtectedRoute from "./components/ProtectedRoute"; // ✅ Import du composant de protection
+import ProtectedRoute from "./components/ProtectedRoute"; 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
+    <>
+    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
     <Routes>
       {/* Routes publiques */}
       <Route path="/" element={<Home />} />
@@ -28,6 +32,7 @@ const App = () => {
         <Route path="/add-visitor" element={<AddVisitor />} />
       </Route>
     </Routes>
+    </>
   );
 };
 
