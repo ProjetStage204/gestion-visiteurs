@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import logoH from "../photos/logoH.png";
+import logoF from "../photos/logoF.png";
+import bgL from "../photos/bgL.jpeg";
+import { IoHomeOutline } from "react-icons/io5";
+import { IoHome } from "react-icons/io5";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [hovered, setHovered] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,32 +29,54 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen justify-center items-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold text-center text-blue-900 mb-6">Connexion</h2>
-        {error && <p className="text-red-500 text-center">{error}</p>}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button type="submit" className="w-full bg-blue-900 text-white py-2 rounded-lg hover:bg-blue-800 transition">
-            Se Connecter
-          </button>
-        </form>
-      </div>
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      {/* Header */}
+      <header className="bg-white text-blue-950 py-6 px-6 flex items-center justify-center shadow-lg relative h-24">
+        <img src={logoH} alt="Logo Ministère" className="absolute left-6 h-full w-auto" />
+        <h1 className="text-5xl font-bold font-serif tracking-wide">Ministère de la Justice</h1>
+        <button 
+          onClick={() => navigate("/")}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          className="absolute right-15 text-blue-950 text-4xl transition-all duration-300"
+        >
+          {hovered ? <IoHome /> : <IoHomeOutline  />}
+        </button>
+      </header>
+
+      {/* Main Content - Centering Login Form */}
+      <main className="flex-grow flex justify-center items-center bg-cover bg-center text-center px-4 py-10 w-full relative"   style={{ backgroundImage: `url(${bgL})` }} >
+
+        {/* Formulaire de connexion mat transparent */}
+        <div className="relative bg-white/15 backdrop-blur-lg p-20 rounded-lg shadow-lg w-full max-w-md">
+          <h2 className="text-2xl font-bold text-center text-blue-950 mb-6">Connexion</h2>
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          <form onSubmit={handleLogin} className="space-y-6">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white/70"
+            />
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white/70"
+            />
+            <button type="submit" className="w-full bg-blue-950 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition">
+              Se Connecter
+            </button>
+          </form>
+        </div>
+      </main>
+
+      {/* Footer */}
+     
     </div>
   );
 };
