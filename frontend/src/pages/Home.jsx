@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo2 from "../photos/logo2.png"; // Assurez-vous que le fichier est bien dans le dossier photos
-import logof from "../photos/logof.png"; // Assurez-vous que le fichier est bien dans le dossier photos
+import logoH from "../photos/logoH.png"; // Assurez-vous que le fichier est bien dans le dossier photos
+import logoF from "../photos/logoF.png"; // Assurez-vous que le fichier est bien dans le dossier photos
 import lg1 from "../photos/lg1.svg";
 import lg2 from "../photos/lg2.svg";
 import lg3 from "../photos/lg3.svg";
@@ -14,8 +14,8 @@ const Home = () => {
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
       {/* Header */}
       <header className="bg-white text-blue-950 py-6 px-6 flex items-center justify-center shadow-lg relative h-24">
-        <img src={logo2} alt="Logo Ministère" className="absolute left-6 h-full w-auto" />
-        <h1 className="text-4xl font-bold">Ministère de la Justice</h1>
+        <img src={logoH} alt="Logo Ministère" className="absolute left-6 h-full w-auto" />
+        <h1 className="text-5xl font-bold font-serif tracking-wide">Ministère de la Justice</h1>
         <button 
           onClick={() => navigate("/login")}
           className="absolute right-6 bg-blue-950 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-900 transition"
@@ -71,14 +71,14 @@ const Home = () => {
     
     {/* Logo centré */}
     <div className="flex justify-center">
-      <img src={logof} alt="Logo Ministère" className="h-30 w-auto" />
+      <img src={logoF} alt="Logo Ministère" className="h-25 w-auto" />
     </div>
 
     {/* Infos à droite */}
     <div className="text-sm text-right">
-      <p>Adresse : 123, Avenue de la République</p>
-      <p>Tél : +213 123 456 789</p>
-      <p>Email : contact@justice.gov</p>
+      <p>Adresse : 6 Rue Beyrouth, Rabat</p>
+      <p>Tél : +212 5372-13737</p>
+      <p>Email : Mjustice@justice.gov.ma</p>
     </div>
 
   </div>
