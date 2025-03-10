@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import logoH from "../photos/logoH.png";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const Dashboard = () => {
@@ -36,33 +37,59 @@ const Dashboard = () => {
     .catch((error) => console.error("Erreur chargement des visiteurs", error));
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/login");
+  };
+
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
-
+  
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce visiteur ?")) {
       return;
     }
-
+  
     try {
       await axios.delete(`http://127.0.0.1:8000/api/visitors/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
+  
+      // ✅ Met à jour la liste des visiteurs après suppression
       setVisitors(visitors.filter(visitor => visitor.id !== id));
     } catch (error) {
       console.error("Erreur lors de la suppression", error);
     }
   };
+  
 
   const filteredVisitors = visitors.filter(visitor =>
     visitor.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 w-full">
+    <div className="min-h-screen flex flex-col bg-gray-100">
+        {/* Header */}
+        <header className="bg-white text-blue-950 py-6 px-6 flex items-center justify-center shadow-lg relative h-24">
+        <img src={logoH} alt="Logo Ministère" className="absolute left-6 h-full w-auto" />
+        <h1 className="text-5xl font-bold font-serif tracking-wide">Ministère de la Justice</h1>
+
+        {/* ✅ Bouton Déconnexion */}
+        <button 
+          onClick={handleLogout}
+          className="absolute right-6 bg-red-600 text-white px-5 py-2 rounded-lg shadow hover:bg-red-500 transition"
+        >
+          Déconnexion
+        </button>
+      </header>
+      <div className="p-6">
       <h1 className="text-3xl font-bold text-blue-900 mb-6">Tableau de Bord - Ministère de la Justice</h1>
 
       <button
@@ -141,6 +168,7 @@ const Dashboard = () => {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 };

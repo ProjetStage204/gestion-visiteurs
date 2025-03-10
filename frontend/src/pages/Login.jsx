@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import logoH from "../photos/logoH.png";
-import logoF from "../photos/logoF.png";
 import bgL from "../photos/bgL.jpeg";
 import { IoHomeOutline } from "react-icons/io5";
 import { IoHome } from "react-icons/io5";
@@ -21,13 +20,26 @@ const Login = () => {
         email,
         password,
       });
+  
+      // ✅ Vérifier si le backend renvoie bien le rôle
+      if (!response.data.user || !response.data.user.role) {
+        throw new Error("Le rôle de l'utilisateur est introuvable !");
+      }
+  
       localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      localStorage.setItem("role", response.data.user.role); // ✅ On stocke bien le rôle
+  
+      // ✅ Redirection forcée vers le Dashboard après une courte attente
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 100);
     } catch (err) {
+      console.error("Erreur de connexion :", err);
       setError("Email ou mot de passe incorrect.");
     }
   };
-
+  
+  
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Header */}

@@ -29,8 +29,8 @@ const Home = () => {
         className="flex-1 flex flex-col items-center justify-center bg-cover bg-center text-center px-4 py-10 w-full relative" 
         style={{ backgroundImage: "url('https://lematin.ma/lematin/uploads/images/2024/07/25/329160.webp')", minHeight: "calc(100vh - 96px)" }}
       >
-        <h2 className="text-4xl font-bold text-white mb-4">Bienvenue sur la Plateforme de Gestion des Visiteurs</h2>
-        <p className="text-lg text-white max-w-2xl">
+        <h2 className="text-4xl font-bold text-white mb-8 font-serif tracking-wide">Bienvenue sur la Plateforme de Gestion des Visiteurs</h2>
+        <p className="text-lg text-white max-w-2xl font-serif tracking-wide">
           Simplifiez et sécurisez l'accès aux locaux du Ministère de la Justice grâce à notre système de gestion des visiteurs.
         </p>
 
@@ -45,7 +45,7 @@ const Home = () => {
 
       {/* Nouvelle Section 60% Bleu / Blanc */}
       <section className="relative w-full h-[60vh] flex flex-col">
-        <div className="h-1/2 bg-blue-950 w-full"></div> {/* Partie haute en bleu */}
+        <div className="h-1/2 bg-green-950 w-full"></div> {/* Partie haute en bleu */}
         <div className="h-1/2 bg-white w-full"></div> {/* Partie basse en blanc */}
 
         {/* Conteneur des divs bien centrées */}
@@ -70,7 +70,7 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-green-950 text-white py-6 w-full mt-auto">
+      <footer className="bg-blue-950 text-white py-6 w-full mt-auto">
         <div className="max-w-6xl mx-auto grid grid-cols-3 items-center px-6">
           {/* Texte à gauche */}
           <p className="text-lg font-semibold text-left">© 2025 Ministère de la Justice - Tous droits réservés</p>

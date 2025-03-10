@@ -51,8 +51,12 @@ Route::prefix('auth')->group(function () {
 
         return response()->json([
             'message' => 'Connexion réussie',
-            'token' => $user->createToken('auth_token')->plainTextToken
+            'token' => $user->createToken('auth_token')->plainTextToken,
+            'user' => [
+                'role' => $user->role, // ✅ Doit être présent pour éviter les erreurs
+            ]
         ]);
+        
     });
 
     // Déconnexion (User Logout)
@@ -141,3 +145,14 @@ Route::middleware(['auth:sanctum'])->get('/visitor-stats', function () {
             ->get()
     ]);
 });
+Route::middleware(['auth:sanctum', 'admin'])->delete('/visitors/{id}', function ($id) {
+    $visitor = Visitor::find($id);
+
+    if (!$visitor) {
+        return response()->json(['message' => 'Visiteur non trouvé'], 404);
+    }
+
+    $visitor->delete();
+    return response()->json(['message' => 'Visiteur supprimé avec succès']);
+});
+
