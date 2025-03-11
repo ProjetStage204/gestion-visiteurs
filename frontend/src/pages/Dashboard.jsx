@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import jsPDF from "jspdf";
+import "jspdf/dist/polyfills.es.js"; // ✅ Ajout d'un polyfill pour éviter les erreurs
+import autoTable from "jspdf-autotable";
+import Papa from "papaparse";
 import logoH from "../photos/logoH.png";
 import AddVisitorModal from "../components/AddVisitorModal";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -123,7 +127,52 @@ const handleDelete = async (id) => {
   const filteredVisitors = visitors.filter(visitor =>
     visitor.name.toLowerCase().includes(search.toLowerCase())
   );
-
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Liste des Visiteurs", 20, 10);
+  
+    const tableColumn = ["Nom", "CIN", "Téléphone", "Raison", "Statut"];
+    const tableRows = visitors.map((visitor) => [
+      visitor.name,
+      visitor.cin,
+      visitor.phone,
+      visitor.reason,
+      visitor.status,
+    ]);
+  
+    autoTable(doc, {
+      head: [tableColumn], // ✅ Correction : on passe `autoTable(doc, { ... })`
+      body: tableRows,
+    });
+  
+    doc.save("visiteurs.pdf");
+    toast.success("Exportation PDF réussie !");
+  
+  };
+  
+  // ✅ Fonction pour exporter en CSV
+  const exportToCSV = () => {
+    const csv = Papa.unparse({
+      fields: ["Nom", "CIN", "Téléphone", "Raison", "Statut"],
+      data: visitors.map((visitor) => [
+        visitor.name,
+        visitor.cin,
+        visitor.phone,
+        visitor.reason,
+        visitor.status,
+      ]),
+    });
+  
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "visiteurs.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  
+    toast.success("Exportation CSV réussie !");
+  };
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
         {/* Header */}
@@ -156,25 +205,25 @@ const handleDelete = async (id) => {
   </span>
 
   {/* Menu déroulant pour Exporter */}
-  <div className="relative group">
-    <span className="cursor-pointer text-lg font-semibold hover:underline hover:text-yellow-400 transition flex items-center">
-      Exporter <span className="ml-1 transition-transform group-hover:rotate-180">▼</span>
+<div className="relative group">
+  <span className="cursor-pointer text-lg font-semibold hover:underline hover:text-yellow-400 transition flex items-center">
+    Exporter <span className="ml-1 transition-transform group-hover:rotate-180">▼</span>
+  </span>
+  <div className="absolute left-0 hidden group-hover:block bg-white text-blue-900 py-2 rounded shadow-lg w-36">
+    <span 
+      onClick={exportToPDF} // ✅ Exporter en PDF
+      className="block px-4 py-1 hover:bg-gray-200 cursor-pointer"
+    >
+      PDF
     </span>
-    <div className="absolute left-0 hidden group-hover:block bg-white text-blue-900 py-2 rounded shadow-lg w-36">
-      <span 
-        onClick={() => console.log("Exporter en PDF")}
-        className="block px-4 py-1 hover:bg-gray-200 cursor-pointer"
-      >
-        PDF
-      </span>
-      <span 
-        onClick={() => console.log("Exporter en CSV")}
-        className="block px-4 py-1 hover:bg-gray-200 cursor-pointer"
-      >
-        CSV
-      </span>
-    </div>
+    <span 
+      onClick={exportToCSV} // ✅ Exporter en CSV
+      className="block px-4 py-1 hover:bg-gray-200 cursor-pointer"
+    >
+      CSV
+    </span>
   </div>
+</div>
 
   <span 
     onClick={() => navigate("/history")} 

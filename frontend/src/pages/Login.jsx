@@ -21,15 +21,15 @@ const Login = () => {
         password,
       });
   
-      // ✅ Vérifier si le backend renvoie bien le rôle
+      //  Vérifier si le backend renvoie bien le rôle
       if (!response.data.user || !response.data.user.role) {
         throw new Error("Le rôle de l'utilisateur est introuvable !");
       }
   
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.user.role); // ✅ On stocke bien le rôle
+      localStorage.setItem("role", response.data.user.role); //  On stocke bien le rôle
   
-      // ✅ Redirection forcée vers le Dashboard après une courte attente
+      // Redirection forcée vers le Dashboard après une courte attente
       setTimeout(() => {
         navigate("/dashboard");
       }, 100);
