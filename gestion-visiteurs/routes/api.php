@@ -171,3 +171,26 @@ Route::middleware(['auth:sanctum'])->put('/visitors/{id}/status', function (Requ
 
     return response()->json(['message' => 'Statut mis à jour avec succès', 'visitor' => $visitor]);
 });
+Route::middleware('auth:sanctum')->get('/visitor-history', function (Request $request) {
+    $query = \App\Models\Visitor::query();
+
+    // Filtrer par statut si sélectionné
+    if ($request->has('status') && $request->status !== '') {
+        $query->where('status', $request->status);
+    }
+
+    // Filtrer par période (start_date & end_date)
+    if ($request->has('start_date') && $request->has('end_date')) {
+        $query->whereBetween('updated_at', [$request->start_date, $request->end_date]);
+    }
+
+    // Filtrer par nom ou CIN
+    if ($request->has('search') && $request->search !== '') {
+        $query->where(function ($q) use ($request) {
+            $q->where('name', 'LIKE', "%{$request->search}%")
+              ->orWhere('cin', 'LIKE', "%{$request->search}%");
+        });
+    }
+
+    return response()->json($query->orderBy('updated_at', 'desc')->get());
+});

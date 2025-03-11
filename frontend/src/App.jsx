@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import AddVisitor from "./pages/AddVisitor";
+import History from "./pages/History";
 import EditVisitor from "./pages/EditVisitor";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 import { ToastContainer } from "react-toastify";
@@ -28,9 +28,11 @@ const App = () => {
       </Route>
 
       {/* Routes protégées pour Admins & Agents */}
+      
       <Route element={<ProtectedRoute allowedRoles={["admin", "agent"]} />}>
-        <Route path="/add-visitor" element={<AddVisitor />} />
+      <Route path="/history" element={<History />} />
       </Route>
+
     </Routes>
     </>
   );

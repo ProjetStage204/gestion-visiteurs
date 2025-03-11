@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import logoH from "../photos/logoH.png";
+import AddVisitorModal from "../components/AddVisitorModal";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const Dashboard = () => {
@@ -10,6 +11,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState({});
   const [search, setSearch] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -137,11 +139,56 @@ const handleDelete = async (id) => {
           Déconnexion
         </button>
       </header>
+     {/* Mini-Header (Menu de navigation) */}
+<nav className="bg-blue-900 text-white py-3 px-6 flex space-x-8 shadow-md">
+<span 
+    onClick={() => setShowModal(true)} 
+    className="cursor-pointer text-lg font-semibold hover:underline hover:text-yellow-400 transition"
+  >
+    Ajouter un Visiteur
+  </span>
+
+  <span 
+    onClick={() => navigate("/dashboard")} 
+    className="cursor-pointer text-lg font-semibold hover:underline hover:text-yellow-400 transition"
+  >
+    Statistiques
+  </span>
+
+  {/* Menu déroulant pour Exporter */}
+  <div className="relative group">
+    <span className="cursor-pointer text-lg font-semibold hover:underline hover:text-yellow-400 transition flex items-center">
+      Exporter <span className="ml-1 transition-transform group-hover:rotate-180">▼</span>
+    </span>
+    <div className="absolute left-0 hidden group-hover:block bg-white text-blue-900 py-2 rounded shadow-lg w-36">
+      <span 
+        onClick={() => console.log("Exporter en PDF")}
+        className="block px-4 py-1 hover:bg-gray-200 cursor-pointer"
+      >
+        PDF
+      </span>
+      <span 
+        onClick={() => console.log("Exporter en CSV")}
+        className="block px-4 py-1 hover:bg-gray-200 cursor-pointer"
+      >
+        CSV
+      </span>
+    </div>
+  </div>
+
+  <span 
+    onClick={() => navigate("/history")} 
+    className="cursor-pointer text-lg font-semibold hover:underline hover:text-yellow-400 transition"
+  >
+    Historique
+  </span>
+</nav>
+{showModal && <AddVisitorModal onClose={() => setShowModal(false)} onVisitorAdded={fetchStats} />}
       <div className="p-6">
       <h1 className="text-3xl font-bold text-blue-900 mb-6">Tableau de Bord - Ministère de la Justice</h1>
 
       <button
-        onClick={() => navigate("/add-visitor")}
+        onClick={() => setShowModal(true)}
         className="mb-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 transition"
       >
         Ajouter un Visiteur
